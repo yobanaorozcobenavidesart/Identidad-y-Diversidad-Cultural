@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Rompecabezas - Identidad y Diversidad Cultural</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Times New Roman", serif;
+      background: black;
+      color: white;
+      text-align: center;
+    }
+    h1 {
+      color: gold;
+      margin: 20px 0;
+      font-size: 3vw;
+    }
+    #puzzle-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 2vh;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 0.3vw;
+      border: 0.4vw solid gold;
+      background: #333;
+      width: 90vw;
+      max-width: 600px;
+      aspect-ratio: 5 / 4; /* mantiene proporción */
+    }
+    .cell {
+      background: #111;
+      border: 1px dashed #555;
+      position: relative;
+      overflow: hidden;
+    }
+    #pieces {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 2vh;
+      gap: 0.5vw;
+      max-width: 95vw;
+    }
+    .piece {
+      flex: 1 0 calc(20% - 0.5vw); /* 5 columnas */
+      aspect-ratio: 1 / 1; /* mantiene cuadrado */
+      background-size: 500% 400%; /* coincide con 5x4 piezas */
+      cursor: grab;
+      border: 1px solid #666;
+    }
+    #message {
+      margin: 20px;
+      padding: 20px;
+      border: 2px solid gold;
+      display: none;
+      font-size: 1.2vw;
+    }
+    a {
+      color: gold;
+      text-decoration: none;
+    }
+    footer {
+      margin-top: 30px;
+      padding: 10px;
+      border-top: 1px solid gold;
+      font-style: italic;
+      color: white;
+      font-size: 1vw;
+    }
+    button {
+      background: gold;
+      color: black;
+      font-family: "Times New Roman", serif;
+      font-size: 1.2vw;
+      padding: 0.8vw 1.5vw;
+      margin: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e5c100;
+    }
+
+    /* Ajustes móviles */
+    @media (max-width: 600px) {
+      h1 { font-size: 6vw; }
+      button { font-size: 4vw; }
+      footer { font-size: 3.5vw; }
+      #message { font-size: 3.5vw; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Identidad y Diversidad Cultural</h1>
+
+  <div id="puzzle-container">
+    <div id="board"></div>
+  </div>
+
+  <h2 style="color: gold;">Piezas</h2>
+  <div id="pieces"></div>
+
+  <button onclick="initPuzzle(true)">🔄 Reiniciar</button>
+
+  <div id="message">
+    <h2>🎉 ¡Felicitaciones! 🎉</h2>
+    <p>
+      San Juan de los Parentes es un resguardo indígena de la comunidad Ticuna, localizado en Leticia, capital del departamento del Amazonas, cuya población vive principalmente del cultivo de la tierra, la pesca y el comercio, y es el hogar de William Ahuë, un joven indígena de 22 años, que encontró en la pintura la mejor forma de expresar el amor que siente por esta tierra y el orgullo que representa para él pertenecer a su comunidad.
+    </p>
+    <p>
+      Pinta sobre lienzo, Yanchama (una fibra milenaria que se obtiene de la corteza del árbol del mismo nombre), cartón, triplex, pared, y sobre cuerpos humanos; del lápiz a los vinilos. De las flores, árboles y rostros a plasmar la biodiversidad de su Amazonas del alma. “Salí a recorrer otros lugares, a conocer otras personas, a adentrarme en esta selva, en ese hermoso, pero misterioso río Amazonas, en los atardeceres, en la gente, la comida, la música, en todo lo hermoso que tenemos aquí”, resalta William.
+    </p>
+    <p><strong>Fuente:</strong> <a href="https://www.radionacional.co/cultura/arte/pintor-indigena-ticuna-william-ahue-obras-e-historia" target="_blank">Radio Nacional de Colombia</a></p>
+  </div>
+
+  <footer>
+    Art Thinking (Pensamiento a través del arte) <br>
+    Yobana Orozco Benavides – Metodologías activas en la educación artística
+  </footer>
+
+  <script>
+    // Lista de imágenes
+    const images = [
+      "https://radionacional-v3.s3.amazonaws.com/s3fs-public/styles/portadas_relaciona_4_3/public/node/article/field_image/William%20Amazonas%209.jpg?h=0e00ad08&itok=PBMasgL4",
+      "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20Artista%20Amazonas%208.jpg",
+      "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20artista%20Amazonas%201.jpg",
+      "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20artista%20Amazonas%20r%C3%ADo.jpg",
+      "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20artista%20Amazonas%20Avatar.jpg",
+      "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20Amazonas%2010.jpg"
+    ];
+
+    const cols = 5;
+    const rows = 4;
+    const board = document.getElementById("board");
+    const piecesContainer = document.getElementById("pieces");
+    const message = document.getElementById("message");
+
+    let selectedImage = "";
+    let pieces = [];
+
+    function initPuzzle(newImage = false) {
+      message.style.display = "none";
+
+      // Si reinicia, elegir otra imagen aleatoria
+      if (newImage || selectedImage === "") {
+        selectedImage = images[Math.floor(Math.random() * images.length)];
+      }
+
+      // Crear tablero vacío
+      board.innerHTML = "";
+      for (let i = 0; i < cols * rows; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.index = i;
+        board.appendChild(cell);
+      }
+
+      // Crear piezas
+      pieces = [];
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const piece = document.createElement("div");
+          piece.classList.add("piece");
+          piece.style.backgroundImage = `url(${selectedImage})`;
+          piece.style.backgroundPosition = `-${col * 120}px -${row * 120}px`;
+          piece.dataset.correctIndex = row * cols + col;
+          piece.draggable = true;
+          pieces.push(piece);
+        }
+      }
+
+      // Revolver piezas
+      pieces.sort(() => Math.random() - 0.5);
+
+      // Mostrar piezas en el contenedor
+      piecesContainer.innerHTML = "";
+      pieces.forEach(piece => piecesContainer.appendChild(piece));
+
+      // Eventos de drag & drop
+      document.querySelectorAll(".piece").forEach(piece => {
+        piece.addEventListener("dragstart", dragStart);
+      });
+      document.querySelectorAll(".cell").forEach(cell => {
+        cell.addEventListener("dragover", dragOver);
+        cell.addEventListener("drop", drop);
+      });
+    }
+
+    let draggedPiece = null;
+
+    function dragStart(e) {
+      draggedPiece = e.target;
+    }
+
+    function dragOver(e) {
+      e.preventDefault();
+    }
+
+    function drop(e) {
+      e.preventDefault();
+      if (!draggedPiece) return;
+      if (e.target.classList.contains("cell") && e.target.childElementCount === 0) {
+        e.target.appendChild(draggedPiece);
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      const cells = document.querySelectorAll(".cell");
+      for (let i = 0; i < cells.length; i++) {
+        if (cells[i].childElementCount === 0) return;
+        let piece = cells[i].firstChild;
+        if (piece.dataset.correctIndex != i) return;
+      }
+      message.style.display = "block";
+    }
+
+    // Iniciar primera vez
+    initPuzzle(true);
+  </script>
+
+</body>
+</html>
