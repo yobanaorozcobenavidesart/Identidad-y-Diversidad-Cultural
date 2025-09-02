@@ -14,43 +14,38 @@
     h1 {
       color: gold;
       margin: 20px 0;
-      font-size: 3vw;
     }
     #puzzle-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 2vh;
+      margin: 20px;
     }
     #board {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 0.3vw;
-      border: 0.4vw solid gold;
+      grid-template-columns: repeat(5, 120px);
+      grid-template-rows: repeat(4, 120px);
+      gap: 2px;
+      border: 3px solid gold;
       background: #333;
-      width: 90vw;
-      max-width: 600px;
-      aspect-ratio: 5 / 4; /* mantiene proporción */
     }
     .cell {
+      width: 120px;
+      height: 120px;
       background: #111;
       border: 1px dashed #555;
-      position: relative;
-      overflow: hidden;
     }
     #pieces {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      margin: 2vh;
-      gap: 0.5vw;
-      max-width: 95vw;
+      margin: 20px;
+      gap: 5px;
     }
     .piece {
-      flex: 1 0 calc(20% - 0.5vw); /* 5 columnas */
-      aspect-ratio: 1 / 1; /* mantiene cuadrado */
-      background-size: 500% 400%; /* coincide con 5x4 piezas */
+      width: 120px;
+      height: 120px;
+      background-size: 600px 480px;
       cursor: grab;
       border: 1px solid #666;
     }
@@ -59,7 +54,6 @@
       padding: 20px;
       border: 2px solid gold;
       display: none;
-      font-size: 1.2vw;
     }
     a {
       color: gold;
@@ -71,14 +65,13 @@
       border-top: 1px solid gold;
       font-style: italic;
       color: white;
-      font-size: 1vw;
     }
     button {
       background: gold;
       color: black;
       font-family: "Times New Roman", serif;
-      font-size: 1.2vw;
-      padding: 0.8vw 1.5vw;
+      font-size: 16px;
+      padding: 10px 20px;
       margin: 20px;
       border: none;
       border-radius: 8px;
@@ -86,14 +79,6 @@
     }
     button:hover {
       background: #e5c100;
-    }
-
-    /* Ajustes móviles */
-    @media (max-width: 600px) {
-      h1 { font-size: 6vw; }
-      button { font-size: 4vw; }
-      footer { font-size: 3.5vw; }
-      #message { font-size: 3.5vw; }
     }
   </style>
 </head>
@@ -127,6 +112,7 @@
   </footer>
 
   <script>
+    // Lista de imágenes
     const images = [
       "https://radionacional-v3.s3.amazonaws.com/s3fs-public/styles/portadas_relaciona_4_3/public/node/article/field_image/William%20Amazonas%209.jpg?h=0e00ad08&itok=PBMasgL4",
       "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20Artista%20Amazonas%208.jpg",
@@ -147,10 +133,13 @@
 
     function initPuzzle(newImage = false) {
       message.style.display = "none";
+
+      // Si reinicia, elegir otra imagen aleatoria
       if (newImage || selectedImage === "") {
         selectedImage = images[Math.floor(Math.random() * images.length)];
       }
 
+      // Crear tablero vacío
       board.innerHTML = "";
       for (let i = 0; i < cols * rows; i++) {
         const cell = document.createElement("div");
@@ -159,24 +148,28 @@
         board.appendChild(cell);
       }
 
+      // Crear piezas
       pieces = [];
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           const piece = document.createElement("div");
           piece.classList.add("piece");
           piece.style.backgroundImage = `url(${selectedImage})`;
-          piece.style.backgroundPosition = `${-(col * 100 / (cols - 1))}% ${-(row * 100 / (rows - 1))}%`;
-          piece.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+          piece.style.backgroundPosition = `-${col * 120}px -${row * 120}px`;
           piece.dataset.correctIndex = row * cols + col;
           piece.draggable = true;
           pieces.push(piece);
         }
       }
 
+      // Revolver piezas
       pieces.sort(() => Math.random() - 0.5);
+
+      // Mostrar piezas en el contenedor
       piecesContainer.innerHTML = "";
       pieces.forEach(piece => piecesContainer.appendChild(piece));
 
+      // Eventos de drag & drop
       document.querySelectorAll(".piece").forEach(piece => {
         piece.addEventListener("dragstart", dragStart);
       });
@@ -215,6 +208,7 @@
       message.style.display = "block";
     }
 
+    // Iniciar primera vez
     initPuzzle(true);
   </script>
 
