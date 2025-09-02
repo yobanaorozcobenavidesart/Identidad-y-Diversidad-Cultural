@@ -127,7 +127,6 @@
   </footer>
 
   <script>
-    // Lista de imágenes
     const images = [
       "https://radionacional-v3.s3.amazonaws.com/s3fs-public/styles/portadas_relaciona_4_3/public/node/article/field_image/William%20Amazonas%209.jpg?h=0e00ad08&itok=PBMasgL4",
       "https://radionacional-v3.s3.amazonaws.com/s3fs-public/inline-images/William%20Artista%20Amazonas%208.jpg",
@@ -148,13 +147,10 @@
 
     function initPuzzle(newImage = false) {
       message.style.display = "none";
-
-      // Si reinicia, elegir otra imagen aleatoria
       if (newImage || selectedImage === "") {
         selectedImage = images[Math.floor(Math.random() * images.length)];
       }
 
-      // Crear tablero vacío
       board.innerHTML = "";
       for (let i = 0; i < cols * rows; i++) {
         const cell = document.createElement("div");
@@ -163,28 +159,24 @@
         board.appendChild(cell);
       }
 
-      // Crear piezas
       pieces = [];
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           const piece = document.createElement("div");
           piece.classList.add("piece");
           piece.style.backgroundImage = `url(${selectedImage})`;
-          piece.style.backgroundPosition = `-${col * 120}px -${row * 120}px`;
+          piece.style.backgroundPosition = `${-(col * 100 / (cols - 1))}% ${-(row * 100 / (rows - 1))}%`;
+          piece.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
           piece.dataset.correctIndex = row * cols + col;
           piece.draggable = true;
           pieces.push(piece);
         }
       }
 
-      // Revolver piezas
       pieces.sort(() => Math.random() - 0.5);
-
-      // Mostrar piezas en el contenedor
       piecesContainer.innerHTML = "";
       pieces.forEach(piece => piecesContainer.appendChild(piece));
 
-      // Eventos de drag & drop
       document.querySelectorAll(".piece").forEach(piece => {
         piece.addEventListener("dragstart", dragStart);
       });
@@ -223,7 +215,6 @@
       message.style.display = "block";
     }
 
-    // Iniciar primera vez
     initPuzzle(true);
   </script>
 
